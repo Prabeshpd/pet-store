@@ -8,6 +8,7 @@ export type UserSchema = Omit<User, 'password'>;
 export interface IUserRepository {
   createUser: (user: UserPayload) => Promise<UserSchema>;
   findByEmail: (email: string) => Promise<UserSchema | null>;
+  findByEmailWithPassword: (email: string) => Promise<User | null>;
 }
 
 class UserRepository implements IUserRepository {
@@ -27,6 +28,15 @@ class UserRepository implements IUserRepository {
     const { password, ...userInformation } = user;
 
     return userInformation;
+  }
+
+  async findByEmailWithPassword(email: string) {
+    const user = await dbClient.user.findUnique({ where: { email } });
+    if (!user) {
+      return null;
+    }
+
+    return user;
   }
 }
 
