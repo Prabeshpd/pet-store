@@ -11,6 +11,21 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
+    container: node:18
+    services:
+      db:
+        image: postgres:14.8
+        ports: ['5432:5432']
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_DB: pet_store_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -28,6 +43,11 @@ jobs:
 
       - name: Build
         run: yarn build
+
+      - name: Create Env
+        run: |
+          touch .env.test
+          echo POSTGRES_DB_CONNECTION_URL=postgresql://postgres:postgres@db:5432/pet_store_test >> .env.test
 
       - name: Test
         run: yarn test
