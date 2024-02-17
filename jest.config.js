@@ -2,6 +2,7 @@
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
+  setupFilesAfterEnv: ['<rootDir>/test/helpers/database.mock.ts'],
   moduleNameMapper: {
     '^@/config/(.*)$': '<rootDir>/src/config/$1',
     '^@/controllers/(.*)$': '<rootDir>/src/controllers/$1',
@@ -14,6 +15,7 @@ module.exports = {
     '^@/schemas/(.*)$': '<rootDir>/src/schemas/$1',
     '^@/services/(.*)$': '<rootDir>/src/services/$1',
     '^@/types/(.*)$': '<rootDir>/src/types/$1',
-    '^@/test/(.*)$': '<rootDir>/src/test/$1'
-  }
+    '^@/test/(.*)$': '<rootDir>/test/$1'
+  },
+  testMatch: ['<rootDir>/src/**/*.test.ts']
 };
