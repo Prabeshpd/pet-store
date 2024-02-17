@@ -3,7 +3,7 @@ import { UserPayload, UserSchema, IUserRepository } from '@/repositories/users';
 
 import UserError from './error';
 
-interface IUserManager {
+export interface IUserManager {
   create: (payload: UserPayload) => Promise<UserSchema>;
 }
 
