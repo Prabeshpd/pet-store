@@ -16,5 +16,6 @@ module.exports = {
     '^@/services/(.*)$': '<rootDir>/src/services/$1',
     '^@/types/(.*)$': '<rootDir>/src/types/$1',
     '^@/test/(.*)$': '<rootDir>/test/$1'
-  }
+  },
+  testMatch: ['<rootDir>/src/**/*.test.ts']
 };
