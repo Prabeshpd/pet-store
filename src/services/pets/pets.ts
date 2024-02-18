@@ -9,9 +9,15 @@ interface UpdateParameters {
   payload: PetUpdatePayload;
 }
 
+interface DeleteParameters {
+  id: number;
+  userId: number;
+}
+
 export interface IPetManager {
   create: (payload: PetCreatePayload) => Promise<PetSchema>;
   update: (updateParameters: UpdateParameters) => Promise<PetSchema>;
+  remove: (deleteParameters: DeleteParameters) => Promise<PetSchema>;
 }
 
 class PetManager implements IPetManager {
@@ -40,6 +46,22 @@ class PetManager implements IPetManager {
       }
 
       const pets = await this.petRepository.update({ id, userId }, payload);
+
+      return pets;
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  remove = async (deleteParameters: DeleteParameters) => {
+    const { id, userId } = deleteParameters;
+    try {
+      const existingPet = await this.petRepository.findWithUserId(id, userId);
+      if (!existingPet) {
+        throw new NotFoundError({ message: 'Pet resource not found' });
+      }
+
+      const pets = await this.petRepository.remove(id);
 
       return pets;
     } catch (error) {

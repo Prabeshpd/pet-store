@@ -6,7 +6,7 @@ import PetRepository, { IPetRepository } from '@/repositories/pets';
 import PetManager from '@/services/pets/pets';
 
 class PetController {
-  repository: IPetRepository;
+  private repository: IPetRepository;
 
   constructor() {
     this.repository = new PetRepository();
@@ -33,6 +33,17 @@ class PetController {
 
     new PetManager(this.repository)
       .update(petPayload)
+      .then((data) => response.status(StatusCodes.OK).json(data))
+      .catch((error) => next(error));
+  };
+
+  remove = async (request: Request, response: Response, next: NextFunction) => {
+    const authorizedRequest = request as unknown as AuthorizedRequest;
+    const userId = authorizedRequest.user.id;
+    const id = Number(request.params.id);
+
+    new PetManager(this.repository)
+      .remove({ id, userId })
       .then((data) => response.status(StatusCodes.OK).json(data))
       .catch((error) => next(error));
   };

@@ -175,3 +175,76 @@ describe('Pets PUT API:', () => {
     });
   });
 });
+
+describe('Pets DELETE API:', () => {
+  let token: string;
+  let user: UserSchema;
+  beforeAll(async () => {
+    user = { ...userFactory(), email: 'unique.user@coolblue.co' };
+    token = await jwt.generateAccessToken(user);
+  });
+  describe('given valid params', () => {
+    afterEach(async () => {
+      await server.close();
+    });
+
+    it('returns deleted pet with status 200', async () => {
+      const userRepository = new UserRepository();
+      const petRepository = new PetRepository();
+      const userManager = new UserManager(userRepository);
+      const createdUser = await userManager.create(user);
+      const petPayload = {
+        ...petFactory(),
+        name: 'Tom',
+        species: Species.cat,
+        user: { connect: { id: createdUser.id } }
+      };
+      const createdPet = await petRepository.create(petPayload);
+
+      const response = await request(app)
+        .delete(`/api/v1/pets/${createdPet.id}`)
+        .set('authorization', `Bearer ${token}`);
+
+      expect(response.statusCode).toBe(200);
+      expect(response.body.available).toBe(false);
+    });
+  });
+
+  describe('given NO authorization header is passed', () => {
+    afterEach(async () => {
+      await server.close();
+    });
+
+    it('throws unauthorized error', async () => {
+      const petPayload = { ...petFactory(), name: 'Tom', species: Species.cat };
+
+      const response = await request(app).put('/api/v1/pets/1').send(petPayload);
+
+      expect(response.statusCode).toBe(401);
+    });
+  });
+
+  describe('given entity that does NOT EXIST', () => {
+    afterEach(async () => {
+      await server.close();
+    });
+
+    it('throws not found error', async () => {
+      const userRepository = new UserRepository();
+      const petRepository = new PetRepository();
+      const userManager = new UserManager(userRepository);
+      const createdUser = await userManager.create(user);
+      const petPayload = {
+        ...petFactory(),
+        name: 'Tom',
+        species: Species.cat,
+        user: { connect: { id: createdUser.id } }
+      };
+      await petRepository.create(petPayload);
+
+      const response = await request(app).delete(`/api/v1/pets/4`).set('authorization', `Bearer ${token}`);
+
+      expect(response.statusCode).toBe(404);
+    });
+  });
+});

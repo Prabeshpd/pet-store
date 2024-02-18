@@ -78,4 +78,42 @@ describe('UserManager:', () => {
       });
     });
   });
+
+  describe('removePet', () => {
+    describe('given valid params', () => {
+      it('removes the pet from availability', async () => {
+        const userPayload = {
+          name: 'dev coolblue',
+          email: 'dev@coolbluehq.co',
+          password: 'random'
+        };
+        const createdUser = await userRepository.createUser(userPayload);
+        const petPayload = {
+          ...petFactory(),
+          user: { connect: { id: createdUser.id } },
+          name: 'Tom',
+          species: Species.cat
+        };
+        const createdPet = await petManager.create(petPayload);
+
+        const updatedPet = await petManager.remove({
+          id: createdPet.id,
+          userId: createdUser.id
+        });
+
+        expect(updatedPet.available).toBe(false);
+      });
+    });
+
+    describe('given INVALID entity that does not exist', () => {
+      it('throws not found error', async () => {
+        await expect(
+          petManager.remove({
+            id: 1,
+            userId: 2
+          })
+        ).rejects.toBeInstanceOf(NotFoundError);
+      });
+    });
+  });
 });

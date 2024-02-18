@@ -10,5 +10,6 @@ const petRouter = Router();
 
 petRouter.post('/', authenticate, schema(createSchema), petController.create);
 petRouter.put('/:id', authenticate, schema(updateSchema), petController.update);
+petRouter.delete('/:id', authenticate, petController.remove);
 
 export default petRouter;
