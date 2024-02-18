@@ -5,6 +5,7 @@ import * as jwt from '@/lib/jwt';
 import { UserSchema } from '@/repositories/users';
 import { userFactory } from '@/test/factories/users';
 import authenticate, { AuthorizedRequest } from './auth';
+import { withoutAttrs } from '@/helpers/object';
 
 describe('authentication middleware', () => {
   let mockExpressRequest: Partial<AuthorizedRequest>;
@@ -23,26 +24,32 @@ describe('authentication middleware', () => {
 
   describe('given there is NO token sent', () => {
     it('throws unauthorized error', async () => {
+      mockExpressRequest.method = 'POST';
+      mockExpressRequest.body = {};
+      mockExpressRequest.is = (arg: string) => {
+        return 'true';
+      };
+      mockExpressRequest.headers = {};
       mockExpressResponse.status = sinon.stub().callsFake((statusArg) => {
         return {
-          send: sinon.stub().callsFake((replyArg) => {
+          json: sinon.stub().callsFake((replyArg) => {
             return { status: statusArg, body: replyArg };
           })
         };
       });
 
-      authenticate(
+      const response = await authenticate(
         mockExpressRequest as AuthorizedRequest,
         mockExpressResponse as Response,
         mockNextFunction as NextFunction
-      ).then((data: any) =>
-        expect(data).toStrictEqual({
-          status: 400,
-          body: {
-            message: 'No authorization header set'
-          }
-        })
       );
+
+      expect(response).toStrictEqual({
+        status: 401,
+        body: {
+          message: 'No authorization header set'
+        }
+      });
     });
   });
 
@@ -51,24 +58,24 @@ describe('authentication middleware', () => {
       mockExpressRequest.headers = { authorization: `random_token ${token}` };
       mockExpressResponse.status = sinon.stub().callsFake((statusArg) => {
         return {
-          send: sinon.stub().callsFake((replyArg) => {
+          json: sinon.stub().callsFake((replyArg) => {
             return { status: statusArg, body: replyArg };
           })
         };
       });
 
-      authenticate(
+      const response = await authenticate(
         mockExpressRequest as AuthorizedRequest,
         mockExpressResponse as Response,
         mockNextFunction as NextFunction
-      ).then((data: any) =>
-        expect(data).toStrictEqual({
-          status: 401,
-          body: {
-            message: 'Invalid Token'
-          }
-        })
       );
+
+      expect(response).toStrictEqual({
+        status: 401,
+        body: {
+          message: "Authorization header doesn't include a Bearer token"
+        }
+      });
     });
   });
 
@@ -82,16 +89,17 @@ describe('authentication middleware', () => {
           })
         };
       });
-
       process.env.accessTokenSecret = 'ENTER_ACCESS_TOKEN_SALT_HERE';
 
-      authenticate(
+      await authenticate(
         mockExpressRequest as AuthorizedRequest,
         mockExpressResponse as Response,
         mockNextFunction as NextFunction
-      ).then((data: any) => {
-        expect(mockExpressRequest.user).toStrictEqual(user);
-      });
+      );
+
+      expect(withoutAttrs(mockExpressRequest.user, ['exp', 'iat', 'createdAt', 'updatedAt'])).toStrictEqual(
+        withoutAttrs(user, ['createdAt', 'updatedAt'])
+      );
     });
   });
 });

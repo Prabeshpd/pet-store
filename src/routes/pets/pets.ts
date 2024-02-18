@@ -2,11 +2,12 @@ import { Router } from 'express';
 
 import petController from '@/controllers/pets';
 import { schema } from '@/middlewares/validate';
+import authenticate from '@/middlewares/auth';
 
 import { petSchema } from './schema';
 
-const userRouter = Router();
+const petRouter = Router();
 
-userRouter.post('/', schema(petSchema), petController.create);
+petRouter.post('/', schema(petSchema), authenticate, petController.create);
 
-export default userRouter;
+export default petRouter;

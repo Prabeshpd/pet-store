@@ -19,6 +19,7 @@ class PetManager implements IPetManager {
 
       return pets;
     } catch (error) {
+      console.log({ error });
       throw error;
     }
   };

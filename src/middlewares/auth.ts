@@ -10,7 +10,7 @@ export interface AuthorizedRequest extends Request {
   user: UserSchema;
 }
 
-async function authenticate(request: Request, _response: Response, next: NextFunction) {
+async function authenticate(request: Request, response: Response, next: NextFunction) {
   const authorizedRequest = request as AuthorizedRequest;
   try {
     const { accessTokenSecret } = appConfig.auth;
@@ -19,18 +19,13 @@ async function authenticate(request: Request, _response: Response, next: NextFun
     const token = request.headers.authorization;
 
     if (!token) {
-      const error = new ApiError({ message: 'No authorization header set', code: StatusCodes.BAD_REQUEST });
-
-      return next(error);
+      return response.status(StatusCodes.UNAUTHORIZED).json({ message: 'No authorization header set' });
     }
 
     if (!token.includes('Bearer')) {
-      const error = new ApiError({
-        code: StatusCodes.BAD_GATEWAY,
-        message: "Authorization header doesn't include a Bearer token"
-      });
-
-      return next(error);
+      return response
+        .status(StatusCodes.UNAUTHORIZED)
+        .json({ message: "Authorization header doesn't include a Bearer token" });
     }
 
     const bearerToken = token.split(' ')[1];
@@ -41,9 +36,7 @@ async function authenticate(request: Request, _response: Response, next: NextFun
 
       next();
     } catch (err) {
-      const error = new ApiError({ message: 'Invalid Token', code: StatusCodes.UNAUTHORIZED });
-
-      return next(error);
+      return response.status(StatusCodes.UNAUTHORIZED).json({ message: 'Invalid Token' });
     }
   } catch (err) {
     const error = new ApiError({ message: 'Something went wrong', code: StatusCodes.INTERNAL_SERVER_ERROR });
