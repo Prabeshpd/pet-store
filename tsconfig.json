@@ -26,6 +26,7 @@
     "paths": {
       "@/config/*": ["./src/config/*"],
       "@/controllers/*": ["./src/controllers/*"],
+      "@/constants/*": ["./src/constants/*"],
       "@/helpers/*": ["./src/helpers/*"],
       "@/lib/*": ["./src/lib/*"],
       "@/middlewares/*": ["./src/middlewares/*"],

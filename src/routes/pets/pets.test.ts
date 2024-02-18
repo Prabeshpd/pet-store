@@ -3,6 +3,7 @@ import { Species } from '@prisma/client';
 
 import app, { server } from '../../server';
 
+import dbClient from '@/config/database';
 import * as jwt from '@/lib/jwt';
 import UserRepository, { UserSchema } from '@/repositories/users';
 import UserManager from '@/services/users/users';
@@ -249,7 +250,7 @@ describe('Pets DELETE API:', () => {
   });
 });
 
-describe('Pets GET API:', () => {
+describe('Pets GET detail API:', () => {
   let token: string;
   let user: UserSchema;
   beforeAll(async () => {
@@ -289,9 +290,7 @@ describe('Pets GET API:', () => {
     });
 
     it('throws unauthorized error', async () => {
-      const petPayload = { ...petFactory(), name: 'Tom', species: Species.cat };
-
-      const response = await request(app).get('/api/v1/pets/1').send(petPayload);
+      const response = await request(app).get('/api/v1/pets/1');
 
       expect(response.statusCode).toBe(401);
     });
@@ -315,9 +314,88 @@ describe('Pets GET API:', () => {
       };
       await petRepository.create(petPayload);
 
-      const response = await request(app).delete(`/api/v1/pets/4`).set('authorization', `Bearer ${token}`);
+      const response = await request(app).get(`/api/v1/pets/4`).set('authorization', `Bearer ${token}`);
 
       expect(response.statusCode).toBe(404);
+    });
+  });
+});
+
+describe('Pets GET list API:', () => {
+  let token: string;
+  let user: UserSchema;
+  beforeAll(async () => {
+    user = { ...userFactory(), email: 'unique.user@coolblue.co' };
+    token = await jwt.generateAccessToken(user);
+  });
+  describe('given only valid pagination params', () => {
+    afterEach(async () => {
+      await server.close();
+    });
+
+    it('returns all data with Pagination', async () => {
+      const userRepository = new UserRepository();
+      const user = userFactory();
+      const createdUser = await userRepository.createUser(user);
+      const petPayload = [
+        {
+          ...petFactory(),
+          userId: createdUser.id
+        },
+        {
+          ...petFactory(),
+          userId: createdUser.id
+        },
+        {
+          ...petFactory(),
+          userId: createdUser.id
+        }
+      ];
+      await dbClient.pet.createMany({ data: petPayload });
+
+      const response = await request(app)
+        .get(`/api/v1/pets/?currentPage=1&maxRows=2`)
+        .set('authorization', `Bearer ${token}`);
+
+      expect(response.statusCode).toBe(200);
+      expect(response.body.pets.length).toBe(2);
+      expect(response.body.meta).toEqual({
+        totalRowCount: 3,
+        totalPageCount: 2,
+        perPageCount: 2,
+        currentPage: 1
+      });
+    });
+  });
+
+  describe('given NO authorization header is passed', () => {
+    afterEach(async () => {
+      await server.close();
+    });
+
+    it('throws unauthorized error', async () => {
+      const response = await request(app).get('/api/v1/pets/');
+
+      expect(response.statusCode).toBe(401);
+    });
+  });
+
+  describe('given there no records', () => {
+    afterEach(async () => {
+      await server.close();
+    });
+
+    it('returns empty array', async () => {
+      const response = await request(app).get(`/api/v1/pets`).set('authorization', `Bearer ${token}`);
+
+      expect(response.statusCode).toBe(200);
+      expect(response.body.pets.length).toBe(0);
+      expect(response.body.meta).toEqual({
+        totalRowCount: 0,
+        totalPageCount: 0,
+        perPageCount: 10,
+        currentPage: 1
+      });
     });
   });
 });
