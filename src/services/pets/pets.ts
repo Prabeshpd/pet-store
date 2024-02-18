@@ -18,6 +18,7 @@ export interface IPetManager {
   create: (payload: PetCreatePayload) => Promise<PetSchema>;
   update: (updateParameters: UpdateParameters) => Promise<PetSchema>;
   remove: (deleteParameters: DeleteParameters) => Promise<PetSchema>;
+  findDetail: (id: number) => Promise<PetSchema>;
 }
 
 class PetManager implements IPetManager {
@@ -64,6 +65,20 @@ class PetManager implements IPetManager {
       const pets = await this.petRepository.remove(id);
 
       return pets;
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  findDetail = async (id: number) => {
+    try {
+      const pet = await this.petRepository.findById(id);
+
+      if (!pet) {
+        throw new NotFoundError({ message: 'Pet resource not found' });
+      }
+
+      return pet;
     } catch (error) {
       throw error;
     }

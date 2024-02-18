@@ -4,6 +4,7 @@ import { StatusCodes } from 'http-status-codes';
 import { AuthorizedRequest } from '@/middlewares/auth';
 import PetRepository, { IPetRepository } from '@/repositories/pets';
 import PetManager from '@/services/pets/pets';
+import PetPresenters from '@/presenters/pets';
 
 class PetController {
   private repository: IPetRepository;
@@ -45,6 +46,15 @@ class PetController {
     new PetManager(this.repository)
       .remove({ id, userId })
       .then((data) => response.status(StatusCodes.OK).json(data))
+      .catch((error) => next(error));
+  };
+
+  findDetail = async (request: Request, response: Response, next: NextFunction) => {
+    const id = Number(request.params.id);
+
+    new PetManager(this.repository)
+      .findDetail(id)
+      .then((data) => response.status(StatusCodes.OK).json(new PetPresenters().findDetail(data)))
       .catch((error) => next(error));
   };
 }

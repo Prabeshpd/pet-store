@@ -116,4 +116,36 @@ describe('UserManager:', () => {
       });
     });
   });
+
+  describe('findPetDetail', () => {
+    describe('given valid params', () => {
+      it('returns the pet detail', async () => {
+        const userPayload = {
+          name: 'dev coolblue',
+          email: 'dev@coolbluehq.co',
+          password: 'random'
+        };
+        const createdUser = await userRepository.createUser(userPayload);
+        const petPayload = {
+          ...petFactory(),
+          user: { connect: { id: createdUser.id } },
+          name: 'Tom',
+          species: Species.cat
+        };
+        const createdPet = await petManager.create(petPayload);
+
+        const pet = await petManager.findDetail(createdPet.id);
+
+        expect(pet).not.toBeNull();
+        expect(pet.species).toBe(Species.cat);
+        expect(pet.name).toBe('Tom');
+      });
+    });
+
+    describe('given INVALID entity that does not exist', () => {
+      it('throws not found error', async () => {
+        await expect(petManager.findDetail(3)).rejects.toBeInstanceOf(NotFoundError);
+      });
+    });
+  });
 });
