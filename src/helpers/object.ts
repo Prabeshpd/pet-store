@@ -29,3 +29,19 @@ export function withOnlyAttrs<T>(obj: any, attrs: any[]): T {
 
   return result;
 }
+
+export function isObjectEmpty(obj: any) {
+  return Object.keys(obj).length === 0;
+}
+
+export function isEmpty(obj: any) {
+  if (Array.isArray(obj)) {
+    if (!obj.length) {
+      return true;
+    }
+
+    return false;
+  }
+
+  return isObjectEmpty(obj);
+}
