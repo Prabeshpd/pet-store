@@ -40,7 +40,7 @@ describe('User login test', () => {
         .post('/api/v1/auth/login')
         .send({ email: 'unique.user@gmail.com', password: user.password });
 
-      expect(response.statusCode).toBe(500);
+      expect(response.statusCode).toBe(422);
     });
   });
 });

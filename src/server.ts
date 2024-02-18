@@ -8,6 +8,8 @@ import * as bodyParser from 'body-parser';
 import { generalRouter, appRouter } from './routes/rootRouter';
 import { appConfig } from './config/appConfig';
 
+import * as errorHandlerMiddleware from '@/middlewares/errorHandler';
+
 const APP_PORT = appConfig.port;
 const APP_HOST = appConfig.host;
 
@@ -26,6 +28,11 @@ app.use(cors());
 
 app.use(generalRouter);
 app.use('/api/v1', appRouter);
+
+app.use(errorHandlerMiddleware.genericErrorHandler);
+app.use(errorHandlerMiddleware.emptyBody);
+app.use(errorHandlerMiddleware.bodyParser);
+app.use(errorHandlerMiddleware.notFoundHandler);
 
 export const server = app.listen(app.get('port'), app.get('host'), () => {
   console.log(`Server started at http://${app.get('host')}:${app.get('port')}`);
