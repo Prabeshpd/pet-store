@@ -1,10 +1,14 @@
 import { PetSchema } from '@/repositories/pets';
+import { Pet } from '@prisma/client';
+import { PaginationMetaParams, getPaginatedMeta } from '@/lib/pagination';
 
 class PetPresenters {
   constructor() {}
 
-  async listPets(pets: any[]) {
-    return pets;
+  listPets(pets: Pet[], paginationParams: PaginationMetaParams) {
+    const meta = getPaginatedMeta(paginationParams);
+
+    return { pets, meta };
   }
 
   findDetail(pet: PetSchema) {
