@@ -1,6 +1,6 @@
 import { Request, Response, Router } from 'express';
 
-import PetControllers from '@/controllers/pets';
+// import PetControllers from '@/controllers/pets';
 import userRouter from './users/users';
 import authRouter from './auth/auth';
 
@@ -11,7 +11,7 @@ generalRouter.get('/', (req: Request, res: Response) => {
   res.send('Express + TypeScript Server');
 });
 
-generalRouter.get('/pets', PetControllers.listPets);
+// generalRouter.get('/pets', PetControllers.listPets);
 appRouter.use('/users', userRouter);
 appRouter.use('/auth', authRouter);
 

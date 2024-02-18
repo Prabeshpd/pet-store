@@ -1,15 +1,19 @@
-import FileManager from '@/lib/file';
+import { Prisma, Pet } from '@prisma/client';
 
+import dbClient from '@/config/database';
+
+export type PetPayload = Prisma.PetCreateInput;
+export type PetSchema = Pet;
 export interface IPetRepository {
-  listPets: () => Promise<any>;
+  create: (payload: PetPayload) => Promise<PetSchema>;
 }
 
 class PetRepository implements IPetRepository {
-  async listPets() {
-    const pets = await new FileManager().readFile('');
+  create = async (payload: PetPayload) => {
+    const pet = await dbClient.pet.create({ data: payload });
 
-    return JSON.parse(pets);
-  }
+    return pet;
+  };
 }
 
-export { PetRepository };
+export default PetRepository;

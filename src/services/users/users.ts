@@ -15,24 +15,29 @@ class UserManager implements IUserManager {
   }
 
   create = async (payload: UserPayload) => {
-    if (!payload.email || !payload.password) {
-      throw new UserError({
-        message: 'Please enter email and password.'
-      });
+    try {
+      if (!payload.email || !payload.password) {
+        throw new UserError({
+          message: 'Please enter email and password.'
+        });
+      }
+
+      const user = await this.userRepository.findByEmail(payload.email);
+      if (user) {
+        throw new UserError({ message: 'Account with this email already exists.' });
+      }
+
+      const encryptedPassword = await crypt.hash(payload.password);
+      const userPayload = {
+        ...payload,
+        password: encryptedPassword
+      };
+      const createdUser = await this.userRepository.createUser(userPayload);
+
+      return createdUser;
+    } catch (error) {
+      throw error;
     }
-
-    const user = await this.userRepository.findByEmail(payload.email);
-    if (user) {
-      throw new UserError({ message: 'Account with this email already exists.' });
-    }
-
-    const encryptedPassword = await crypt.hash(payload.password);
-    const userPayload = {
-      ...payload,
-      password: encryptedPassword
-    };
-
-    return this.userRepository.createUser(userPayload);
   };
 }
 
