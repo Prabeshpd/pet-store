@@ -15,6 +15,7 @@ export interface IPetRepository {
   update: (updateQueryParameters: UpdateQueryParams, payload: PetUpdatePayload) => Promise<PetSchema>;
   findWithUserId: (id: number, userId: number) => Promise<PetSchema | null>;
   remove: (id: number) => Promise<PetSchema>;
+  findById: (id: number) => Promise<PetSchema | null>;
 }
 
 class PetRepository implements IPetRepository {
@@ -43,6 +44,12 @@ class PetRepository implements IPetRepository {
     const removedPet = await dbClient.pet.update({ ...deleteQuery, data: { available: false } });
 
     return removedPet;
+  };
+
+  findById = async (id: number) => {
+    const pet = await dbClient.pet.findUnique({ where: { id } });
+
+    return pet;
   };
 }
 
