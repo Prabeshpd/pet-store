@@ -1,9 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
-import { PetRepository, IPetRepository } from '@/repositories/pets';
-import PetManager from '@/services/pets';
-import PetPresenters from '@/presenters/pets';
+import PetRepository, { IPetRepository } from '@/repositories/pets';
+import PetManager from '@/services/pets/pets';
 
 class PetController {
   repository: IPetRepository;
@@ -12,10 +11,11 @@ class PetController {
     this.repository = new PetRepository();
   }
 
-  async listPets(request: Request, response: Response, next: NextFunction) {
+  async create(request: Request, response: Response, next: NextFunction) {
+    const payload = request.body;
     new PetManager(this.repository)
-      .listPets()
-      .then((data) => response.status(StatusCodes.OK).json(new PetPresenters().listPets(data)))
+      .create(payload)
+      .then((data) => response.status(StatusCodes.CREATED).json(data))
       .catch((error) => next(error));
   }
 }
