@@ -9,13 +9,11 @@ describe('validationMiddleware: ', () => {
   let mockExpressRequest: Partial<Request>;
   let mockExpressResponse: Partial<Response>;
   let mockNextFunction: NextFunction;
-  //   let err: any;
 
   beforeAll(async () => {
     mockExpressRequest = {};
     mockExpressResponse = {};
     mockNextFunction = () => {};
-    // err = {};
   });
 
   describe('given payload is INVALID', () => {
