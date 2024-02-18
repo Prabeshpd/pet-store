@@ -5,6 +5,7 @@ import PetManager from './pets';
 import PetRepository from '@/repositories/pets';
 import UserRepository from '@/repositories/users';
 import { Species } from '@prisma/client';
+import NotFoundError from '@/lib/notFoundError';
 
 describe('UserManager:', () => {
   const userRepository = new UserRepository();
@@ -31,6 +32,49 @@ describe('UserManager:', () => {
 
         expect(createdPet.species).toEqual(Species.cat);
         expect(createdPet.name).toEqual('Tom');
+      });
+    });
+  });
+
+  describe('updatePet', () => {
+    describe('given valid params', () => {
+      it('updates the pet records successfully', async () => {
+        const userPayload = {
+          name: 'dev coolblue',
+          email: 'dev@coolbluehq.co',
+          password: 'random'
+        };
+        const createdUser = await userRepository.createUser(userPayload);
+        const petPayload = {
+          ...petFactory(),
+          user: { connect: { id: createdUser.id } },
+          name: 'Tom',
+          species: Species.cat
+        };
+        const createdPet = await petManager.create(petPayload);
+
+        const updatePayload = { species: Species.dog, name: 'Bruno' };
+        const updatedPet = await petManager.update({
+          id: createdPet.id,
+          userId: createdUser.id,
+          payload: updatePayload
+        });
+
+        expect(updatedPet.species).toEqual(Species.dog);
+        expect(updatedPet.name).toEqual('Bruno');
+      });
+    });
+
+    describe('given INVALID entity that does not exist', () => {
+      it('throws not found error', async () => {
+        const updatePayload = { species: Species.dog, name: 'Bruno' };
+        await expect(
+          petManager.update({
+            id: 1,
+            userId: 2,
+            payload: updatePayload
+          })
+        ).rejects.toBeInstanceOf(NotFoundError);
       });
     });
   });
