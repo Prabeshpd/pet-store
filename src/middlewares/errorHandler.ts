@@ -4,6 +4,7 @@ import { Request, Response, NextFunction } from 'express';
 import { isEmpty } from '@/helpers/object';
 import ApiError from '@/lib/apiError';
 import BaseError from '@/lib/error';
+import NotFoundError from '@/lib/notFoundError';
 
 export function notFoundHandler(_err: any, _req: Request, res: Response, next: NextFunction) {
   return res.status(StatusCodes.NOT_FOUND).json({
@@ -34,6 +35,10 @@ export function bodyParser(err: any, _req: Request, res: Response, _next: NextFu
 export function genericErrorHandler(err: any, _req: Request, res: Response, _next: NextFunction) {
   if (err instanceof ApiError) {
     return res.status(err.code).json({ message: err.message });
+  }
+
+  if (err instanceof NotFoundError) {
+    return res.status(StatusCodes.NOT_FOUND).json({ message: err.message });
   }
 
   if (err instanceof BaseError) {

@@ -1,9 +1,17 @@
-import { PetPayload, PetSchema, IPetRepository } from '@/repositories/pets';
+import { PetCreatePayload, PetUpdatePayload, PetSchema, IPetRepository } from '@/repositories/pets';
+import NotFoundError from '@/lib/notFoundError';
 
 // import PetError from './error';
 
+interface UpdateParameters {
+  id: number;
+  userId: number;
+  payload: PetUpdatePayload;
+}
+
 export interface IPetManager {
-  create: (payload: PetPayload) => Promise<PetSchema>;
+  create: (payload: PetCreatePayload) => Promise<PetSchema>;
+  update: (updateParameters: UpdateParameters) => Promise<PetSchema>;
 }
 
 class PetManager implements IPetManager {
@@ -13,13 +21,28 @@ class PetManager implements IPetManager {
     this.petRepository = petRepository;
   }
 
-  create = async (payload: PetPayload) => {
+  create = async (payload: PetCreatePayload) => {
     try {
       const pets = await this.petRepository.create(payload);
 
       return pets;
     } catch (error) {
-      console.log({ error });
+      throw error;
+    }
+  };
+
+  update = async (updateParameters: UpdateParameters) => {
+    const { id, userId, payload } = updateParameters;
+    try {
+      const existingPet = await this.petRepository.findWithUserId(id, userId);
+      if (!existingPet) {
+        throw new NotFoundError({ message: 'Pet resource not found' });
+      }
+
+      const pets = await this.petRepository.update({ id, userId }, payload);
+
+      return pets;
+    } catch (error) {
       throw error;
     }
   };
