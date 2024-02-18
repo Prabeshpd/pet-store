@@ -61,4 +61,28 @@ describe('Pet Repository', () => {
       });
     });
   });
+
+  describe('remove', () => {
+    describe('given valid params', () => {
+      it('update pets status to unavailable', async () => {
+        const user = userFactory();
+        const userEmail = 'dev@coolblue.co';
+        const userPayload = { ...user, email: userEmail };
+        const createdUser = await dbClient.user.create({ data: userPayload });
+        const pets = petFactory();
+        const petPayload = { ...pets, species: Species.dog, user: { connect: { id: createdUser.id } } };
+        const createdPet = await petRepository.create(petPayload);
+
+        const removedPet = await petRepository.remove(createdPet.id);
+
+        expect(removedPet.available).toBe(false);
+      });
+    });
+
+    describe('given INVALID params', () => {
+      it('throws error', async () => {
+        await expect(petRepository.remove(2)).rejects.toThrow();
+      });
+    });
+  });
 });
