@@ -1,0 +1,17 @@
+version: '3.2'
+
+services:
+  postgres_test:
+    container_name: 'pet_store_test'
+    image: 'postgres:14'
+    environment:
+      - POSTGRES_DB=pet_store_test
+      - POSTGRES_PASSWORD=Admin@1234
+      - POSTGRES_USER=postgres
+    ports:
+      - '5433:5432'
+    volumes:
+      - pg_data-test:/var/lib/postgresql/data/
+
+volumes:
+  pg_data-test:
