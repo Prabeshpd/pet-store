@@ -119,7 +119,7 @@ const petRouter = Router();
  *           schema:
  *             $ref: '#/components/schemas/Pet'
  *     responses:
- *       200:
+ *       201:
  *         description: The created pet.
  *         content:
  *           application/json:

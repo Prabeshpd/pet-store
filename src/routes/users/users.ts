@@ -58,7 +58,7 @@ const userRouter = Router();
  *           schema:
  *             $ref: '#/components/schemas/User'
  *     responses:
- *       200:
+ *       201:
  *         description: The created user.
  *         content:
  *           application/json:
