@@ -1,0 +1,17 @@
+version: '3.2'
+
+services:
+  postgres:
+    container_name: 'postgres'
+    image: 'postgres:14'
+    environment:
+      - POSTGRES_DB=pet_store
+      - POSTGRES_PASSWORD=Admin@1234
+      - POSTGRES_USER=postgres
+    ports:
+      - '5432:5432'
+    volumes:
+      - pg_data:/var/lib/postgresql/data/
+
+volumes:
+  pg_data:
