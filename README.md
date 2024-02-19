@@ -29,13 +29,7 @@ cd pet-store
   POSTGRES_DB_CONNECTION_URL = postgresql://postgres:Password@1234@localhost:5432/postgres
   ```
 
-  Server will run at port 3001
-
-  For Seeding
-
-  ```bash
-   yarn seed
-  ```
+  Server will run at port 3000
 
 - ### Test Application
 
