@@ -6,6 +6,7 @@ import compression from 'compression';
 import * as bodyParser from 'body-parser';
 import swaggerUi from 'swagger-ui-express';
 import swaggerJsdoc from 'swagger-jsdoc';
+import { pinoHttp } from 'pino-http';
 
 import { generalRouter, appRouter } from './routes/rootRouter';
 import { appConfig } from './config/appConfig';
@@ -28,6 +29,7 @@ app.use(morgan('tiny'));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cors());
+app.use(pinoHttp());
 
 app.use(generalRouter);
 app.use('/api/v1', appRouter);
