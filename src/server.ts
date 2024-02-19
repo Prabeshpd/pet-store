@@ -4,9 +4,12 @@ import morgan from 'morgan';
 import express from 'express';
 import compression from 'compression';
 import * as bodyParser from 'body-parser';
+import swaggerUi from 'swagger-ui-express';
+import swaggerJsdoc from 'swagger-jsdoc';
 
 import { generalRouter, appRouter } from './routes/rootRouter';
 import { appConfig } from './config/appConfig';
+import { swaggerOptions } from './config/swaggerConfig';
 
 import * as errorHandlerMiddleware from '@/middlewares/errorHandler';
 
@@ -28,6 +31,9 @@ app.use(cors());
 
 app.use(generalRouter);
 app.use('/api/v1', appRouter);
+
+const specs = swaggerJsdoc(swaggerOptions);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, { explorer: true }));
 
 app.use(errorHandlerMiddleware.genericErrorHandler);
 app.use(errorHandlerMiddleware.emptyBody);
